@@ -87,12 +87,7 @@ class Closures():
                 insert_request += "(" + str(x[j]) + ", " + str(y[i]) + "),"           
         self.__cursor.execute(insert_request[:-1])
 
-    def query_with_fetchone(self):  
-        self.__cursor.execute("SELECT * FROM " + self.__tableName)
-        row = self.__cursor.fetchone()
-        while row is not None:
-            print(row)
-            row = self.__cursor.fetchone()
+    
 
     def getGraph(self, G):
         anc = []
@@ -134,5 +129,4 @@ class Closures():
         for elem in data:
             if(mtrx[elem[0]][elem[1]] == 1):
                 G.add_edge(str(elem[0]), str(elem[1]))
-
         return G
