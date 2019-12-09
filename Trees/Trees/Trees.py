@@ -22,15 +22,19 @@ def create(tableName):
     if tableName == 'neighbors':
         from Classes.Neighbors import Neighbors
         return Neighbors(cursor, column_names, tableName)
+    if tableName == 'nested_sets':
+        from Classes.Nested_sets import Nested_sets
+        return Nested_sets(cursor, column_names, tableName)
+    if tableName == 'paths':
+        from Classes.Paths import Paths
+        return Paths(cursor, column_names, tableName)
         
 
 if __name__ == '__main__':
     try:
         conn = MySQLConnection(**dbconfig)
         cursor = conn.cursor()
-        c = create('neighbors')
-        c.random_tree(10)
-
+        c = create('paths')
         conn.commit()
         G = c.getGraph(nx.DiGraph())
         plt.title('my_tree')
@@ -38,7 +42,6 @@ if __name__ == '__main__':
         nx.draw(G, pos, with_labels=True, arrows=True)
         plt.savefig('nx_test.png')
         plt.show()
-        conn.commit()
     except Error as e:
         print(e)
 

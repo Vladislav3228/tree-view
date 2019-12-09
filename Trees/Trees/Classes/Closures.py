@@ -1,108 +1,107 @@
 import random
-class Closures():
-    def __init__(self, cursor, columns, tableName):
-        self.__ancestor = columns[0]
-        self.__descendant = columns[1]
-        self.__tableName = tableName
-        self.__cursor = cursor
 
-    # " + self.__tableName + "
-    # " + self.__ancestor + "
-    # " + self.__descendant + "
+class Closures():
+
+    def __init__(self, cursor, columns, tableName):
+        self._ancestor = columns[0]
+        self._descendant = columns[1]
+        self._tableName = tableName
+        self._cursor = cursor
 
     def random_tree(self, a):
-        self.__cursor.execute("DELETE FROM " + self.__tableName)
-        self.__cursor.execute("INSERT INTO " + self.__tableName + " (" + self.__ancestor + ", " + self.__descendant + ") VALUES (1, 1)")
+        self._cursor.execute("DELETE FROM " + self._tableName)
+        self._cursor.execute("INSERT INTO " + self._tableName + " (" + self._ancestor + ", " + self._descendant + ") VALUES (1, 1)")
         for i in range(1, a):
             self.insert(random.randint(1, i))
-    def deletion_without_subtree(self, a):
-        self.__cursor.execute("DELETE FROM " + self.__tableName + " WHERE " + self.__ancestor + " = " + str(a) + " OR " + self.__descendant + " = " + str(a))
 
-    def deletion_with_subtree(self, a):
-        self.__cursor.execute("SELECT " + self.__descendant + " FROM " + self.__tableName + " WHERE " + self.__ancestor + " = " + str(a))
-        des = self.__cursor.fetchone()
+    def del_node(self, a):
+        self._cursor.execute("DELETE FROM " + self._tableName + " WHERE " + self._ancestor + " = " + str(a) + " OR " + self._descendant + " = " + str(a))
+
+    def del_sbtr(self, a):
+        self._cursor.execute("SELECT " + self._descendant + " FROM " + self._tableName + " WHERE " + self._ancestor + " = " + str(a))
+        des = self._cursor.fetchone()
         y = []
         while des is not None:
             y.append(des[0])
-            des = self.__cursor.fetchone()
+            des = self._cursor.fetchone()
         i = len(y)
         for i in range(0, len(y)):
-            self.deletion_without_subtree(y[i]) 
+            self.del_node(y[i]) 
 
     def insert(self, a):
-        self.__cursor.execute("SELECT " + self.__ancestor + " FROM " + self.__tableName + " WHERE " + self.__descendant + " = " + str(a))
-        anc = self.__cursor.fetchone()
+        self._cursor.execute("SELECT " + self._ancestor + " FROM " + self._tableName + " WHERE " + self._descendant + " = " + str(a))
+        anc = self._cursor.fetchone()
         x = []
         while anc is not None:
             x.append(anc[0])
-            anc = self.__cursor.fetchone()
-        self.__cursor.execute("SELECT MAX(" + self.__ancestor + ") FROM " + self.__tableName)
-        new_number = self.__cursor.fetchone()[0] + 1
+            anc = self._cursor.fetchone()
+        self._cursor.execute("SELECT MAX(" + self._ancestor + ") FROM " + self._tableName)
+        new_number = self._cursor.fetchone()[0] + 1
         x.append(new_number)
         i = 0
-        insert_request = "INSERT INTO " + self.__tableName + " (" + self.__ancestor + ", " + self.__descendant + ") VALUES "
+        insert_request = "INSERT INTO " + self._tableName + " (" + self._ancestor + ", " + self._descendant + ") VALUES "
         while i < len(x):
             insert_request += "(" + str(x[i]) + ", " + str(new_number) + "),"
             i += 1
-        self.__cursor.execute(insert_request[:-1])
+        self._cursor.execute(insert_request[:-1])
 
     #'a' - какую вершину берем для переноса, 'b' - под какую вершину переносим
-    def transfering_without_subtree(self, a, b):
-        self.__cursor.execute("DELETE FROM " + self.__tableName + " WHERE " + self.__ancestor + " != " + self.__descendant + " AND (" + self.__ancestor + " = " + str(a) + " OR " + self.__descendant + " = " + str(a) + ")")
+    def move_node(self, a, b):
+        self._cursor.execute("DELETE FROM " + self._tableName + " WHERE " + self._ancestor + " != " + self._descendant + " AND (" + self._ancestor + " = " + str(a) + " OR " + self._descendant + " = " + str(a) + ")")
 
-        self.__cursor.execute("SELECT " + self.__ancestor + " FROM " + self.__tableName + " WHERE " + self.__descendant + " = " + str(b))
-        anc = self.__cursor.fetchone()
+        self._cursor.execute("SELECT " + self._ancestor + " FROM " + self._tableName + " WHERE " + self._descendant + " = " + str(b))
+        anc = self._cursor.fetchone()
         x = []
         while anc is not None:
             x.append(anc[0])
-            anc = self.__cursor.fetchone()
+            anc = self._cursor.fetchone()
         i = 0
-        insert_request = "INSERT INTO " + self.__tableName + " (" + self.__ancestor + ", " + self.__descendant + ") VALUES "
+        insert_request = "INSERT INTO " + self._tableName + " (" + self._ancestor + ", " + self._descendant + ") VALUES "
         while i < len(x):
             insert_request += "(" + str(x[i]) + ", " + str(a) + "),"
             i += 1
-        self.__cursor.execute(insert_request[:-1])
+        self._cursor.execute(insert_request[:-1])
 
     #'a' - какую вершину берем для переноса, 'b' - под какую вершину переносим
-    def transfering_with_subrtee(self, a, b):
-        s1 = "DELETE FROM " + self.__tableName + " WHERE " + self.__ancestor + " IN (SELECT " + self.__ancestor + " FROM " + self.__tableName + " WHERE " + self.__descendant + " = " + str(a) +" AND " + self.__ancestor + " != " + str(a) + ") AND " + self.__descendant + " IN (SELECT " + self.__descendant + " FROM " + self.__tableName + " WHERE " + self.__ancestor + " = " + str(a) + ")"
-        self.__cursor.execute(s1)
-        self.__cursor.execute("SELECT " + self.__ancestor + " FROM " + self.__tableName + " WHERE " + self.__descendant + " = " + str(b))
-        anc = self.__cursor.fetchone()
+    def move_sbtr(self, a, b):
+        s1 = "DELETE FROM " + self._tableName + " WHERE " + self._ancestor + " IN (SELECT " + self._ancestor + " FROM " + self._tableName + " WHERE " + self._descendant + " = " + str(a) +" AND " + self._ancestor + " != " + str(a) + ") AND " + self._descendant + " IN (SELECT " + self._descendant + " FROM " + self._tableName + " WHERE " + self._ancestor + " = " + str(a) + ")"
+        self._cursor.execute(s1)
+        self._cursor.execute("SELECT " + self._ancestor + " FROM " + self._tableName + " WHERE " + self._descendant + " = " + str(b))
+        anc = self._cursor.fetchone()
         x = []
         while anc is not None:
             x.append(anc[0])
-            anc = self.__cursor.fetchone()
-        self.__cursor.execute("SELECT " + self.__descendant + " FROM " + self.__tableName + " WHERE " + self.__ancestor + " = " + str(a))
-        des = self.__cursor.fetchone()
+            anc = self._cursor.fetchone()
+        self._cursor.execute("SELECT " + self._descendant + " FROM " + self._tableName + " WHERE " + self._ancestor + " = " + str(a))
+        des = self._cursor.fetchone()
         y = []
         while des is not None:
             y.append(des[0])
-            des = self.__cursor.fetchone()
+            des = self._cursor.fetchone()
         i = 0
         j = 0
-        insert_request = "INSERT INTO " + self.__tableName + " (" + self.__ancestor + ", " + self.__descendant + ") VALUES "
+        insert_request = "INSERT INTO " + self._tableName + " (" + self._ancestor + ", " + self._descendant + ") VALUES "
         for i in range(len(y)):
             for j in range(len(x)):
                 insert_request += "(" + str(x[j]) + ", " + str(y[i]) + "),"           
-        self.__cursor.execute(insert_request[:-1])
+        self._cursor.execute(insert_request[:-1])
 
     
 
     def getGraph(self, G):
         anc = []
-        self.__cursor.execute("SELECT DISTINCT " + self.__ancestor + " FROM " + self.__tableName)
-        row = self.__cursor.fetchone()
+        self._cursor.execute("SELECT DISTINCT " + self._ancestor + " FROM " + self._tableName)
+        row = self._cursor.fetchone()
         while row is not None:
             anc.append(row[0])
             G.add_node(str(row[0]))
-            row = self.__cursor.fetchone()
+            row = self._cursor.fetchone()
         data = []
-        self.__cursor.execute("SELECT * FROM " + self.__tableName)
-        row = self.__cursor.fetchone()
+        self._cursor.execute("SELECT * FROM " + self._tableName)
+        row = self._cursor.fetchone()
         while row is not None:
             data.append(row)
-            row = self.__cursor.fetchone()
+            row = self._cursor.fetchone()
         INF = -10000
         mtrx = {}
         for i in anc:

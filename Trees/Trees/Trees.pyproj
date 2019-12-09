@@ -24,7 +24,16 @@
     <Compile Include="Classes\Closures.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Classes\Methods.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Classes\Neighbors.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\Nested_sets.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\Paths.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NewFolder1\python_mysql_dbconfig.py">
@@ -34,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.ini" />
+    <Content Include="nx_test.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="NewFolder1\" />
