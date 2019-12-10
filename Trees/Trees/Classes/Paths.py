@@ -35,8 +35,7 @@ class Paths():
             self.__cursor.execute("DELETE FROM " + self.__tableName + " WHERE " + self.__node + " REGEXP '" + node + "/'")
         else:
             self.__cursor.execute("DELETE FROM " + self.__tableName + " WHERE " + self.__node + " REGEXP '/" + node + "/'")
-        
-        
+           
     def move_node(self, node, to):
         self.del_node(node)
         self.insert(to, node)
@@ -48,6 +47,12 @@ class Paths():
         m = self.__cursor.fetchone()[0]
         self.__cursor.execute("UPDATE " + self.__tableName + " SET " + self.__path + " = '" + m + "/" + node + "' WHERE " + self.__node + " = " + node)
         self.__cursor.execute("UPDATE " + self.__tableName + " SET " + self.__path + " = REPLACE(" + self.__path + ", '" + n + "', '" + m + "/" + node + "') WHERE " + self.__path + " REGEXP '" + n + "'")
+
+    def random_tree(self, count):
+        self._cursor.execute("DELETE FROM " + self._tableName)
+        self._cursor.execute("INSERT INTO " + self._tableName + " (" + self.__node + ", " + self.__path + ") VALUES (1, 1)")
+        for i in range(1, count):
+            self.insert(random.randint(1, i))
 
 
     """
