@@ -17,6 +17,39 @@ class Paths():
         self.__cursor.execute("SELECT " + self.__path + " FROM " + self.__tableName + " WHERE " + self.__node + " = '" + to + "'")
         path = self.__cursor.fetchone()[0] + "/" + node
         self.__cursor.execute("INSERT INTO " + self.__tableName + " (" + self.__node + ", " + self.__path + ") VALUES ('" + node + "', '" + path + "')")
+
+    def del_node(self, node):
+        self.__cursor.execute("SELECT " + self.__path + " FROM " + self.__tableName + " WHERE " + self.__node + " = " + node)
+        check = self.__cursor.fetchone()[0]
+        self.__cursor.execute("DELETE FROM " + self.__tableName + " WHERE " + self.__node + " = " + node)
+        if check == node:
+            self.__cursor.execute("UPDATE " + self.__tableName + " SET " + self.__path + " = REPLACE(" + self.__path + ", '" + node + "/', '') WHERE " + self.__path + " REGEXP '" + node + "/'")
+        else:
+            self.__cursor.execute("UPDATE " + self.__tableName + " SET " + self.__path + " = REPLACE(" + self.__path + ", '" + node + "/', '') WHERE " + self.__path + " REGEXP '/" + node + "/'")
+
+    def del_sbtr(self, node):
+        self.__cursor.execute("SELECT " + self.__path + " FROM " + self.__tableName + " WHERE " + self.__node + " = " + node)
+        check = self.__cursor.fetchone()[0]
+        self.__cursor.execute("DELETE FROM " + self.__tableName + " WHERE " + self.__node + " = " + node)
+        if check == node:
+            self.__cursor.execute("DELETE FROM " + self.__tableName + " WHERE " + self.__node + " REGEXP '" + node + "/'")
+        else:
+            self.__cursor.execute("DELETE FROM " + self.__tableName + " WHERE " + self.__node + " REGEXP '/" + node + "/'")
+        
+        
+    def move_node(self, node, to):
+        self.del_node(node)
+        self.insert(to, node)
+
+    def move_sbtr(self, node, to):
+        self.__cursor.execute("SELECT " + self.__path + " FROM " + self.__tableName + " WHERE " + self.__node + " = " + node)
+        n = self.__cursor.fetchone()[0]
+        self.__cursor.execute("SELECT " + self.__path + " FROM " + self.__tableName + " WHERE " + self.__node + " = " + to)
+        m = self.__cursor.fetchone()[0]
+        self.__cursor.execute("UPDATE " + self.__tableName + " SET " + self.__path + " = '" + m + "/" + node + "' WHERE " + self.__node + " = " + node)
+        self.__cursor.execute("UPDATE " + self.__tableName + " SET " + self.__path + " = REPLACE(" + self.__path + ", '" + n + "', '" + m + "/" + node + "') WHERE " + self.__path + " REGEXP '" + n + "'")
+
+
     """
     def getEdges(self, G, i):
         self.__cursor.execute("SELECT " + self.__node + " FROM " + self.__tableName + " WHERE " + self.__path + " REGEXP '" + i + "/.$'")
@@ -53,7 +86,6 @@ class Paths():
                     G.add_edge(root, u[len(u)-1])
                     self.getEdges(G, u[len(u)-1], data)
         print('-----------------------------------------')
-        
    
     def getGraph(self, G):
         data = {}
